@@ -1,11 +1,27 @@
 const expressJwt = require("express-jwt")
 const User = require("../models/user")
+const Product = require("../models/product")
+const Category = require("../models/category")
 
 const requireSignin = expressJwt({
     secret: process.env.JWT_SECRET,
     algorithms: ['sha1', 'RS256', 'HS256'],
     requestProperty: "auth"
 })
+
+
+const categoryById = (req, res, next, id) => {
+    Category.findById(id).exec((err, category) => {
+        if(err || !category){
+            return res.status(400).json({
+                status: 'error',
+                message: "Product Not Found"
+            })
+        }
+        req.category = category;
+        next();
+    })
+}
 
 const userById = (req, res, next, id) => {
     User.findById(id).exec((err, user) => {
@@ -17,6 +33,19 @@ const userById = (req, res, next, id) => {
         }
         const {_id, name, email, role} = user
         req.profile = {_id, name, email, role};
+        next();
+    })
+}
+
+const productById = (req, res, next, id) => {
+    Product.findById(id).exec((err, product) => {
+        if(err || !product){
+            return res.status(400).json({
+                status: 'error',
+                message: "Product Not Found"
+            })
+        }
+        req.product = product;
         next();
     })
 }
@@ -40,7 +69,6 @@ const isAdmin = (req, res, next) => {
             message: "Admin Resources! Access Denied"
         })
     }
-
     next()
 }
 
@@ -48,5 +76,7 @@ module.exports = {
     isAdmin,
     isAuth,
     userById,
+    productById,
+    categoryById,
     requireSignin,
 }

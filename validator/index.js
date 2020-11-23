@@ -70,6 +70,7 @@ const categoryCreateValidation = (req, res, next) => {
 }
 
 
+
 module.exports = {
     userSigninValidator,
     userSignupValidator,
